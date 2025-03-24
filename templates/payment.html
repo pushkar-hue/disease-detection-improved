@@ -1,0 +1,132 @@
+<!-- templates/payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Options - MedicalAI Diagnostics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MedicalAI Diagnostics - Premium Services</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/chat">AI Chat</a>
+                <a href="/symptom-checker">Symptom Checker</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="payment-section">
+                <h2>Choose Your Premium Service</h2>
+                
+                <div class="payment-options">
+                    <div class="payment-card">
+                        <h3>Basic Report</h3>
+                        <p class="price">₹99</p>
+                        <ul>
+                            <li>AI-powered diagnosis</li>
+                            <li>Basic condition information</li>
+                            <li>Simple PDF report</li>
+                        </ul>
+                        <button class="payment-btn" data-amount="99" data-plan="basic">Select</button>
+                    </div>
+                    
+                    <div class="payment-card featured">
+                        <div class="recommended-badge">Recommended</div>
+                        <h3>Premium Report</h3>
+                        <p class="price">₹299</p>
+                        <ul>
+                            <li>Everything in Basic</li>
+                            <li>Detailed medical analysis</li>
+                            <li>Treatment recommendations</li>
+                            <li>Risk assessment</li>
+                        </ul>
+                        <button class="payment-btn" data-amount="299" data-plan="premium">Select</button>
+                    </div>
+                    
+                    <div class="payment-card">
+                        <h3>Expert Report</h3>
+                        <p class="price">₹499</p>
+                        <ul>
+                            <li>Everything in Premium</li>
+                            <li>Expert-level analysis</li>
+                            <li>Research citations</li>
+                            <li>Follow-up recommendations</li>
+                            <li>30-day chat support</li>
+                        </ul>
+                        <button class="payment-btn" data-amount="499" data-plan="expert">Select</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 MedicalAI Diagnostics. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.querySelectorAll('.payment-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const amount = this.getAttribute('data-amount');
+                const plan = this.getAttribute('data-plan');
+                
+                // Create the Razorpay order
+                fetch('/api/create-order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: parseInt(amount),
+                        plan: plan
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                        return;
+                    }
+                    
+                    // Configure Razorpay options
+                    const options = {
+                        key: data.key,
+                        amount: data.amount,
+                        currency: data.currency,
+                        name: "MedicalAI Diagnostics",
+                        description: plan.charAt(0).toUpperCase() + plan.slice(1) + " Medical Report",
+                        order_id: data.id,
+                        handler: function (response) {
+                            // This handler is called when payment succeeds
+                            document.location.href = '/payment-success?plan=' + plan + 
+                                '&payment_id=' + response.razorpay_payment_id + 
+                                '&order_id=' + response.razorpay_order_id;
+                        },
+                        prefill: {
+                            name: "",
+                            email: "",
+                            contact: ""
+                        },
+                        theme: {
+                            color: "#3399cc"
+                        }
+                    };
+                    
+                    // Create Razorpay instance and open payment modal
+                    const razorpayInstance = new Razorpay(options);
+                    razorpayInstance.open();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Something went wrong. Please try again.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

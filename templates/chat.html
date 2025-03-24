@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Assistant Chat | MedDiagnosis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4e89fc; /* Changed to match home page blue */
+            --primary-dark: #3a70e3;
+            --primary-light: #edf3ff;
+            --accent-color: #4e89fc;
+        }
+        
+        body {
+            background-color: #f8faff; /* Light blue background like home page */
+        }
+        
+        .bg-primary {
+            background-color: var(--primary-color);
+        }
+        
+        .bg-primary-light {
+            background-color: var(--primary-light);
+        }
+        
+        .bg-primary-dark {
+            background-color: var(--primary-dark);
+        }
+        
+        .text-primary {
+            color: var(--primary-color);
+        }
+        
+        .border-primary {
+            border-color: var(--primary-color);
+        }
+        
+        .hover\:bg-primary-dark:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .ring-primary {
+            --tw-ring-color: var(--primary-color);
+        }
+        
+        .chat-container {
+            height: calc(100vh - 180px);
+        }
+        
+        .messages-container {
+            height: calc(100% - 60px);
+            overflow-y: auto;
+        }
+        
+        .user-message {
+            background-color: #f0f4f8;
+            border-radius: 18px 18px 0 18px;
+        }
+        
+        .bot-message {
+            background-color: var(--primary-light);
+            border-radius: 18px 18px 18px 0;
+        }
+        
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            margin: 0 1px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite ease-in-out both;
+        }
+        
+        .typing-indicator span:nth-child(1) {
+            animation-delay: 0s;
+        }
+        
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0); opacity: 0; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 30px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(78, 137, 252, 0.4);
+        }
+        
+        .get-started-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 30px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .get-started-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(78, 137, 252, 0.4);
+        }
+        
+        .feature-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            height: 100%;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+            color: #4B5563;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="bg-white text-gray-800 p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="text-xl font-bold flex items-center text-primary">
+                <i class="fas fa-plus-square mr-2"></i> MedDiagnosis
+            </a>
+            <div class="hidden md:flex space-x-10">
+                <a href="/" class="nav-link hover:text-primary transition">Home</a>
+                <a href="/services" class="nav-link hover:text-primary transition">Services</a>
+                <a href="/diagnosis" class="nav-link hover:text-primary transition">Diagnosis</a>
+                <a href="/chat" class="nav-link active text-primary font-semibold transition">Chat</a>
+                <a href="/contact" class="nav-link hover:text-primary transition">Contact</a>
+                <a href="/symptom-checker" class="nav-link hover:text-primary transition">Symptom Checker</a>
+            </div>
+            <a href="/get-started" class="hidden md:inline-block get-started-btn">Get Started</a>
+            <button class="md:hidden text-gray-500 focus:outline-none">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-10">
+        <!-- Main Chat Container -->
+        <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg overflow-hidden mb-12">
+            <div class="p-5 bg-primary text-white">
+                <h2 class="text-2xl font-semibold flex items-center">
+                    <i class="fas fa-comment-medical mr-3"></i> Medical Assistant Chat
+                </h2>
+                <p class="text-blue-100 mt-1">Ask questions about medical conditions, treatments, or general health information</p>
+            </div>
+            
+            <div class="chat-container p-4">
+                <div id="messages" class="messages-container">
+                    <div class="bot-message p-4 mb-4 max-w-md">
+                        <p>Hello! I'm your medical assistant. I can help answer questions about medical conditions, explain terminology, or provide general health information. How can I assist you today?</p>
+                        <p class="text-xs text-gray-500 mt-2">Remember: I cannot provide specific diagnoses or replace professional medical advice.</p>
+                    </div>
+                    <!-- Messages will appear here -->
+                </div>
+                
+                <div class="mt-4">
+                    <form id="chat-form" class="flex">
+                        <input type="text" id="user-input" class="flex-grow px-4 py-3 border rounded-l-lg focus:outline-none focus:ring-2 ring-primary" placeholder="Type your medical question here..." required>
+                        <button type="submit" class="bg-primary text-white px-5 py-3 rounded-r-lg hover:bg-primary-dark transition">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="p-5 bg-primary-light border-t border-gray-200">
+                <div class="text-sm text-gray-600">
+                    <p class="font-semibold">Important disclaimer:</p>
+                    <p>This assistant provides general information only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Guide -->
+        <div class="max-w-4xl mx-auto mb-12">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h3 class="text-xl font-semibold mb-5 text-gray-800">How to use the Medical Assistant</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="border rounded-xl p-5">
+                        <h4 class="font-medium text-primary mb-3"><i class="fas fa-check-circle mr-2"></i> Good questions to ask:</h4>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>"What are common symptoms of pneumonia?"</li>
+                            <li>"How can I prevent skin cancer?"</li>
+                            <li>"What does a high blood pressure reading mean?"</li>
+                            <li>"What are the risk factors for COVID-19?"</li>
+                            <li>"Can you explain what an MRI is used for?"</li>
+                        </ul>
+                    </div>
+                    <div class="border rounded-xl p-5">
+                        <h4 class="font-medium text-red-600 mb-3"><i class="fas fa-times-circle mr-2"></i> Limitations - I cannot:</h4>
+                        <ul class="list-disc pl-5 space-y-2">
+                            <li>Diagnose your specific condition</li>
+                            <li>Prescribe medication or treatments</li>
+                            <li>Access or interpret your personal medical records</li>
+                            <li>Provide emergency medical advice</li>
+                            <li>Replace consultation with a healthcare professional</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Feature Cards -->
+        <div class="max-w-6xl mx-auto mb-16">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="feature-card p-6 text-center">
+                    <i class="fas fa-tachometer-alt text-primary text-4xl mb-4"></i>
+                    <h4 class="font-semibold text-gray-800 text-lg mb-3">Instant Results</h4>
+                    <p class="text-gray-600">Get AI analysis within seconds, no waiting required</p>
+                </div>
+                <div class="feature-card p-6 text-center">
+                    <i class="fas fa-brain text-primary text-4xl mb-4"></i>
+                    <h4 class="font-semibold text-gray-800 text-lg mb-3">AI Diagnosis</h4>
+                    <p class="text-gray-600">State-of-the-art models trained on medical imagery</p>
+                </div>
+                <div class="feature-card p-6 text-center">
+                    <i class="fas fa-robot text-primary text-4xl mb-4"></i>
+                    <h4 class="font-semibold text-gray-800 text-lg mb-3">AI Assistant</h4>
+                    <p class="text-gray-600">Chat with our medical AI assistant for general guidance</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-white text-gray-600 py-10 border-t border-gray-200">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-wrap">
+                <div class="w-full md:w-1/4 mb-8 md:mb-0">
+                    <a href="/" class="text-xl font-bold flex items-center text-primary mb-4">
+                        <i class="fas fa-plus-square mr-2"></i> MedDiagnosis
+                    </a>
+                    <p class="text-sm">Advanced AI-powered medical diagnosis at your fingertips. Upload medical images for instant analysis and detailed reports.</p>
+                </div>
+                <div class="w-full md:w-1/6 mb-8 md:mb-0">
+                    <h5 class="font-semibold mb-4 text-gray-700">Quick Links</h5>
+                    <ul class="text-sm space-y-2">
+                        <li><a href="/" class="hover:text-primary transition">Home</a></li>
+                        <li><a href="/services" class="hover:text-primary transition">Services</a></li>
+                        <li><a href="/diagnosis" class="hover:text-primary transition">Diagnosis</a></li>
+                        <li><a href="/symptom-checker" class="hover:text-primary transition">Symptom Checker</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/6 mb-8 md:mb-0">
+                    <h5 class="font-semibold mb-4 text-gray-700">Resources</h5>
+                    <ul class="text-sm space-y-2">
+                        <li><a href="/faq" class="hover:text-primary transition">FAQ</a></li>
+                        <li><a href="/blog" class="hover:text-primary transition">Blog</a></li>
+                        <li><a href="/terms" class="hover:text-primary transition">Terms</a></li>
+                        <li><a href="/privacy" class="hover:text-primary transition">Privacy</a></li>
+                    </ul>
+                </div>
+                <div class="w-full md:w-1/3">
+                    <h5 class="font-semibold mb-4 text-gray-700">Contact Us</h5>
+                    <p class="text-sm mb-2"><i class="fas fa-envelope mr-2"></i> support@meddiagnosis.com</p>
+                    <p class="text-sm mb-4"><i class="fas fa-phone mr-2"></i> +1 (800) 123-4567</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-gray-200 text-center">
+                <p class="text-sm">© 2025 MedDiagnosis. All rights reserved. For educational purposes only.</p>
+                <p class="text-xs text-gray-500 mt-1">Not a substitute for professional medical advice.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const messagesContainer = document.getElementById('messages');
+            const chatForm = document.getElementById('chat-form');
+            const userInput = document.getElementById('user-input');
+
+            // Function to add a message to the chat
+            function addMessage(content, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = isUser ? 'user-message ml-auto p-4 mb-4 max-w-md' : 'bot-message p-4 mb-4 max-w-md';
+                messageDiv.innerHTML = `<p>${content}</p>`;
+                
+                if (!isUser) {
+                    messageDiv.innerHTML += `<p class="text-xs text-gray-500 mt-2">Remember: Consult a healthcare professional for medical advice.</p>`;
+                }
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // Function to show typing indicator
+            function showTypingIndicator() {
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'bot-message p-4 mb-4 max-w-md typing-indicator-container';
+                typingDiv.innerHTML = `
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                `;
+                typingDiv.id = 'typing-indicator';
+                messagesContainer.appendChild(typingDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // Function to remove typing indicator
+            function removeTypingIndicator() {
+                const typingIndicator = document.getElementById('typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+            }
+
+            // Handle form submission
+            chatForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const userMessage = userInput.value.trim();
+                if (!userMessage) return;
+                
+                // Add user message to chat
+                addMessage(userMessage, true);
+                
+                // Clear input field
+                userInput.value = '';
+                
+                // Show typing indicator
+                showTypingIndicator();
+                
+                // Send message to server
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userMessage }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // Add bot response to chat
+                    if (data.response) {
+                        addMessage(data.response);
+                    } else if (data.error) {
+                        addMessage('Sorry, I encountered an error: ' + data.error);
+                    } else {
+                        addMessage('Sorry, I encountered an unexpected error. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    // Remove typing indicator
+                    removeTypingIndicator();
+                    
+                    // Add error message
+                    addMessage('Sorry, there was a problem connecting to the server. Please try again later.');
+                    console.error('Error:', error);
+                });
+            });
+
+            // Focus input field on load
+            userInput.focus();
+        });
+    </script>
+</body>
+</html>

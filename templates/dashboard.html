@@ -1,0 +1,161 @@
+<!-- templates/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MedAI Diagnostics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('index') }}">MedAI Diagnostics</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('symptom_checker') }}">Symptom Checker</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('chat_interface') }}">Medical Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ current_user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}">My Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Welcome, {{ current_user.username }}!</h3>
+                    </div>
+                    <div class="card-body">
+                        <h5>Medical Dashboard</h5>
+                        <p>Track your medical analyses and reports in one place. Upload new medical images for instant AI-powered diagnosis.</p>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">New Analysis</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Your Medical Reports</h4>
+                        <span class="badge bg-light text-primary">{{ reports|length }} Reports</span>
+                    </div>
+                    <div class="card-body">
+                        {% if reports %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Analysis Type</th>
+                                            <th>Result</th>
+                                            <th>Confidence</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for report in reports %}
+                                            <tr>
+                                                <td>{{ report.created_at|string|replace('T', ' ')|truncate(16, True, '') }}</td>
+                                                <td>{{ report.model_display_name }}</td>
+                                                <td>
+                                                    <span class="badge {% if 'normal' in report.prediction.lower() or 'healthy' in report.prediction.lower() or 'uninfected' in report.prediction.lower() or 'benign' in report.prediction.lower() %}bg-success{% else %}bg-danger{% endif %}">
+                                                        {{ report.prediction }}
+                                                    </span>
+                                                </td>
+                                                <td>{{ "%.2f"|format(report.confidence) }}%</td>
+                                                <td>
+                                                    <a href="{{ url_for('view_report', report_id=report.id) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-eye"></i> View
+                                                    </a>
+                                                    <a href="{{ url_for('download_report', filename=report.report_file) }}" class="btn btn-sm btn-outline-success">
+                                                        <i class="bi bi-download"></i> Download
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="text-center p-4">
+                                <i class="bi bi-clipboard-data" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3">No reports yet</h5>
+                                <p>Upload a medical image to get started with AI diagnosis</p>
+                                <a href="{{ url_for('index') }}" class="btn btn-primary">Create New Analysis</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Available Medical Models</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for model_key, model_info in models.items() %}
+                                <div class="col-md-4 mb-4">
+                                    <div class="card h-100">
+                                        <div class="card-body">
+                                            <h5 class="card-title">{{ model_info.display_name }}</h5>
+                                            <p class="card-text">{{ model_info.description }}</p>
+                                        </div>
+                                        <div class="card-footer bg-transparent">
+                                            <a href="{{ url_for('index') }}?model={{ model_key }}" class="btn btn-sm btn-primary">Use This Model</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

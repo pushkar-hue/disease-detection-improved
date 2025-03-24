@@ -1,0 +1,48 @@
+<!-- templates/payment_success.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success - MedicalAI Diagnostics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MedicalAI Diagnostics</h1>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/chat">AI Chat</a>
+                <a href="/symptom-checker">Symptom Checker</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="success-section">
+                <div class="success-icon">✓</div>
+                <h2>Payment Successful!</h2>
+                <p>Thank you for your purchase. Your premium report is being generated and will be available shortly.</p>
+                
+                <div class="next-steps">
+                    <h3>Next Steps</h3>
+                    <ol>
+                        <li>Your report is being processed with enhanced AI analysis</li>
+                        <li>You will receive an email when your report is ready</li>
+                        <li>You can also check the "My Reports" section in your account</li>
+                    </ol>
+                </div>
+                
+                <div class="button-group">
+                    <a href="/" class="btn primary-btn">Back to Home</a>
+                    <a href="/my-reports" class="btn secondary-btn">View My Reports</a>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 MedicalAI Diagnostics. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>

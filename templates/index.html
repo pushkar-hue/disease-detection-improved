@@ -3,872 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medical Image Analysis Platform</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>MedDiagnosis - AI-Powered Medical Diagnosis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index_styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #4361ee;
-            --primary-light: #4895ef;
-            --secondary: #3f37c9;
-            --success: #4cc9f0;
-            --danger: #f72585;
-            --warning: #f8961e;
-            --info: #90e0ef;
-            --light: #f8f9fa;
-            --dark: #212529;
-            --gray: #6c757d;
-            --border-radius: 12px;
-            --box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            color: var(--dark);
-            padding: 0;
-            margin: 0;
-            min-height: 100vh;
-        }
-
-        .page-container {
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        .main-container {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-            transition: var(--transition);
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
-            color: white;
-            padding: 2.5rem 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            z-index: 0;
-        }
-
-        .content {
-            padding: 2rem;
-        }
-
-        .model-card {
-            background: white;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            transition: var(--transition);
-            height: 100%;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .model-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .model-card.selected {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.3);
-        }
-
-        .model-card.selected::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: var(--primary);
-            color: white;
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-        }
-
-        .model-card .card-body {
-            padding: 1.5rem;
-        }
-
-        .model-card .card-title {
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 0.75rem;
-        }
-
-        .info-badge {
-            background-color: #edf2ff;
-            color: var(--primary);
-            padding: 0.3rem 0.75rem;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            margin-right: 0.5rem;
-            margin-bottom: 0.5rem;
-            display: inline-block;
-            font-weight: 500;
-            transition: var(--transition);
-        }
-
-        .upload-container {
-            border: 2px dashed #d1d9e6;
-            border-radius: var(--border-radius);
-            padding: 3rem 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            background-color: #f8f9fa;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .upload-container:hover {
-            border-color: var(--primary);
-            background-color: #edf2ff;
-        }
-
-        .upload-container .upload-icon {
-            width: 70px;
-            height: 70px;
-            background-color: #edf2ff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            color: var(--primary);
-            transition: var(--transition);
-        }
-
-        .upload-container:hover .upload-icon {
-            background-color: var(--primary);
-            color: white;
-            transform: scale(1.1);
-        }
-
-        .preview-container {
-            margin-bottom: 2rem;
-            display: none;
-            background: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .preview-header {
-            padding: 1rem 1.5rem;
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #eee;
-        }
-
-        .preview-body {
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        #preview-image {
-            max-width: 100%;
-            max-height: 350px;
-            margin: 0 auto;
-            display: block;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .preview-footer {
-            padding: 1rem 1.5rem;
-            background-color: #f8f9fa;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .btn {
-            border-radius: 50px;
-            padding: 0.6rem 1.5rem;
-            font-weight: 500;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary);
-            border-color: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
-        }
-
-        .btn-outline-secondary {
-            color: var(--gray);
-            border-color: #d1d9e6;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #f8f9fa;
-            color: var(--dark);
-            border-color: var(--gray);
-        }
-
-        .progress-container {
-            display: none;
-            margin: 2rem 0;
-        }
-
-        .progress {
-            height: 10px;
-            border-radius: 50px;
-            background-color: #e9ecef;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .progress-bar {
-            background: linear-gradient(135deg, var(--primary-light), var(--primary));
-            border-radius: 50px;
-        }
-
-        .progress-status {
-            text-align: center;
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .result-container {
-            display: none;
-            margin-top: 2rem;
-            background: white;
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .result-header {
-            padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid #eee;
-            background-color: #f8f9fa;
-        }
-
-        .result-body {
-            padding: 1.5rem;
-        }
-
-        .result-footer {
-            padding: 1.25rem 1.5rem;
-            border-top: 1px solid #eee;
-            background-color: #f8f9fa;
-        }
-
-        .result-box {
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            margin-bottom: 1.5rem;
-            transition: var(--transition);
-            animation: fadeIn 0.5s ease;
-        }
-
-        .positive-result {
-            background-color: #fff5f7;
-            border: 1px solid #ffebf0;
-        }
-
-        .negative-result {
-            background-color: #f0fff4;
-            border: 1px solid #dcffe4;
-        }
-
-        .neutral-result {
-            background-color: #f8f9fa;
-            border: 1px solid #eee;
-        }
-
-        .result-heading {
-            font-weight: 600;
-            margin-bottom: 0.75rem;
-        }
-
-        .text-danger {
-            color: var(--danger) !important;
-        }
-
-        .text-success {
-            color: #10b981 !important;
-        }
-
-        .probability-bars {
-            margin-top: 1.5rem;
-        }
-
-        .probability-bar {
-            height: 8px;
-            border-radius: 50px;
-            margin-bottom: 1.75rem;
-            background-color: #e9ecef;
-        }
-
-        .probability-bar .progress-bar {
-            position: relative;
-            border-radius: 50px;
-            overflow: visible;
-        }
-
-        .probability-bar .progress-bar::after {
-            content: attr(data-value);
-            position: absolute;
-            right: 0;
-            top: -25px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .probability-bar-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .bg-danger {
-            background: linear-gradient(135deg, #ff0a54, #f72585) !important;
-        }
-
-        .bg-success {
-            background: linear-gradient(135deg, #4cc9f0, #10b981) !important;
-        }
-
-        .bg-secondary {
-            background: linear-gradient(135deg, #6c757d, #495057) !important;
-        }
-
-        .disclaimer {
-            font-size: 0.8rem;
-            color: var(--gray);
-            margin-top: 2rem;
-            text-align: center;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: var(--border-radius);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 991.98px) {
-            .page-container {
-                padding: 1rem;
-            }
-            
-            .content {
-                padding: 1.5rem;
-            }
-            
-            .header {
-                padding: 2rem 1.5rem;
-            }
-        }
-
-        @media (max-width: 767.98px) {
-            .preview-footer, .result-footer {
-                justify-content: center;
-            }
-            
-            .upload-container {
-                padding: 2rem 1rem;
-            }
-            
-            .content {
-                padding: 1.25rem;
-            }
-            
-            .model-card .card-body {
-                padding: 1.25rem;
-            }
-        }
-
-        @media (max-width: 575.98px) {
-            h1 {
-                font-size: 1.75rem;
-            }
-            
-            h4 {
-                font-size: 1.25rem;
-            }
-            
-            .content {
-                padding: 1rem;
-            }
-            
-            .btn {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-            
-            .preview-footer, .result-footer {
-                flex-direction: column;
-            }
-        }
-
-        /* Accessibility improvements */
-        .model-card:focus, .upload-container:focus, .btn:focus {
-            outline: 3px solid rgba(67, 97, 238, 0.5);
-            outline-offset: 3px;
-        }
-
-        /* For screen readers */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border-width: 0;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
 </head>
 <body>
-    <div class="page-container">
-        <div class="main-container">
-            <div class="header">
-                <h1 class="mb-2">Medical Image Analysis Platform</h1>
-                <p class="mb-0">Upload medical images for AI-powered analysis using specialized models</p>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="40" height="40" rx="8" fill="#4285F4"/>
+                    <path d="M10 20H30M20 10V30M15 15H25V25H15V15Z" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                <span>MedDiagnosis</span>
             </div>
-            
-            <div class="content">
-                <div class="model-section mb-4">
-                    <h4 class="mb-3">Select Analysis Model</h4>
-                    <div class="row row-cols-1 row-cols-md-3 g-4">
-                        {% for model_key, model in models.items() %}
-                        <div class="col">
-                            <div class="model-card" data-model="{{ model_key }}" tabindex="0" role="button" aria-pressed="false">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ model.display_name }}</h5>
-                                    <p class="card-text">{{ model.description }}</p>
-                                    <div class="mt-2">
-                                        {% for class in model.classes %}
-                                        <span class="info-badge">{{ class }}</span>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
+            <nav>
+                <ul>
+                    <li><a href="#" class="active">Home</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#upload-section" id="diagnosis-nav-link">Diagnosis</a></li>
+                    <li><a href="#chat">Chat</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="/symptom-checker">Symptom Checker</a></li>
+                </ul>
+            </nav>
+            <button class="appointment-btn">Get Started</button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Healthcare<br>Solutions</h1>
+                <p>Advanced AI-powered medical diagnosis at your fingertips. Upload medical images for instant analysis and detailed reports.</p>
+                <button class="primary-btn" id="start-diagnosis">Start Diagnosis</button>
+            </div>
+            <div class="hero-image">
+                <img src="/api/placeholder/500/400" alt="Healthcare Professionals">
+            </div>
+        </div>
+    </section>
+
+    <section class="info-cards">
+        <div class="container">
+            <div class="card opening-hours">
+                <h3><i class="fas fa-clock"></i> Instant Results</h3>
+                <p>Get AI analysis within seconds</p>
+                <p class="highlight">Available 24/7</p>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-file-medical"></i> AI Diagnosis</h3>
+                <p>State-of-the-art models trained on medical imagery</p>
+                <button class="secondary-btn diagnosis-link">Explore</button>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-stethoscope"></i> Professional Reports</h3>
+                <p>Detailed PDF reports for sharing with healthcare providers</p>
+                <button class="secondary-btn">Learn More</button>
+            </div>
+            <div class="card">
+                <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+                <p>Chat with our medical AI assistant for general guidance</p>
+                <button class="secondary-btn" id="chat-btn">Chat Now</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="services">
+        <div class="container">
+            <h2>Our Medical Services</h2>
+            <div class="service-content">
+                <div class="service-image">
+                    <img src="/api/placeholder/450/350" alt="Doctor with tablet">
+                    <div class="service-bubble b1">
+                        <i class="fas fa-lungs"></i>
+                        <span>COVID-19</span>
+                    </div>
+                    <div class="service-bubble b2">
+                        <i class="fas fa-virus"></i>
+                        <span>Disease</span>
+                    </div>
+                    <div class="service-bubble b3">
+                        <i class="fas fa-microscope"></i>
+                        <span>Analysis</span>
                     </div>
                 </div>
-                
-                <div id="upload-container" class="upload-container" tabindex="0" role="button" aria-label="Upload image">
-                    <div class="upload-icon">
-                        <i class="fas fa-cloud-upload-alt fa-2x"></i>
-                    </div>
-                    <h5>Drag and drop an image here</h5>
-                    <p class="text-muted">or click to select a file (JPEG, PNG)</p>
-                    <input type="file" id="file-input" class="d-none" accept=".jpg,.jpeg,.png">
-                </div>
-                
-                <div id="preview-container" class="preview-container">
-                    <div class="preview-header">
-                        <h5 class="mb-0">Image Preview</h5>
-                    </div>
-                    <div class="preview-body">
-                        <img id="preview-image" src="#" alt="Preview of the uploaded medical image">
-                    </div>
-                    <div class="preview-footer">
-                        <button id="change-image-btn" class="btn btn-outline-secondary">
-                            <i class="fas fa-exchange-alt"></i> Change Image
-                        </button>
-                        <button id="analyze-btn" class="btn btn-primary">
-                            <i class="fas fa-microscope"></i> Analyze Image
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="progress-container" class="progress-container">
-                    <div class="progress">
-                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
-                    </div>
-                    <div class="progress-status">
-                        <span id="progress-text">Analyzing image...</span>
-                    </div>
-                </div>
-                
-                <div id="result-container" class="result-container">
-                    <div class="result-header">
-                        <h4 id="result-heading" class="mb-0">Analysis Results</h4>
-                    </div>
-                    
-                    <div class="result-body">
-                        <div id="primary-result" class="result-box">
-                            <h5 id="result-text" class="result-heading"></h5>
-                            <p id="confidence-text" class="mb-0"></p>
-                        </div>
-                        
-                        <div class="mt-4">
-                            <h5 class="mb-3">Detailed Analysis</h5>
-                            <div id="probability-bars" class="probability-bars">
-                                <!-- Probability bars will be added here dynamically -->
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="result-footer">
-                        <button id="new-analysis-btn" class="btn btn-primary">
-                            <i class="fas fa-redo"></i> New Analysis
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="disclaimer">
-                    <p class="mb-0"><strong>Disclaimer:</strong> This tool is for educational purposes only and should not be used for medical diagnosis. Always consult with a healthcare professional for proper diagnosis and treatment.</p>
+                <div class="service-info">
+                    <h3>AI Medical Analysis</h3>
+                    <p>Our advanced AI systems can analyze medical images to detect various conditions including skin cancer, COVID-19, pneumonia, and more. Simply upload your medical images and receive instant analysis with detailed reports.</p>
+                    <button class="primary-btn diagnosis-link">Learn More</button>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <section id="models" class="models">
+        <div class="container">
+            <h2>Our Specialty</h2>
+            <div class="models-container">
+                {% for model_key, model in models.items() %}
+                <div class="model-card" data-model="{{ model_key }}">
+                    <div class="model-icon">
+                        <i class="fas fa-{% if model_key == 'skin_cancer' %}check-circle{% elif model_key == 'covid19' %}virus{% elif model_key == 'pneumonia' %}lungs{% elif model_key == 'malaria' %}microscope{% elif model_key == 'tuberculosis' %}bacterium{% else %}stethoscope{% endif %}"></i>
+                    </div>
+                    <div class="model-info">
+                        <h3>{{ model.display_name }}</h3>
+                        <p>{{ model.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <section class="upload-section" id="upload-section">
+        <div class="container">
+            <h2>AI Diagnosis</h2>
+            <div class="upload-container">
+                <div class="upload-area" id="upload-area">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drag & Drop Medical Image</h3>
+                    <p>or</p>
+                    <label for="file-upload" class="custom-file-upload">
+                        Choose File
+                    </label>
+                    <input id="file-upload" type="file" accept="image/png, image/jpeg, image/jpg">
+                    <p class="file-types">Supported formats: JPG, JPEG, PNG</p>
+                </div>
+                <div class="model-selection">
+                    <h3>Select Diagnosis Model</h3>
+                    <select id="model-select">
+                        {% for model_key, model in models.items() %}
+                        <option value="{{ model_key }}">{{ model.display_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button id="analyze-btn" class="primary-btn" disabled>Analyze Image</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="results-section hidden" id="results-section">
+        <div class="container">
+            <h2>Diagnosis Results</h2>
+            <div class="results-container">
+                <div class="results-image">
+                    <img id="results-img" src="" alt="Uploaded Image">
+                </div>
+                <div class="results-info">
+                    <div class="result-card">
+                        <h3>Diagnosis</h3>
+                        <p id="prediction-result">Loading...</p>
+                    </div>
+                    <div class="result-card">
+                        <h3>Confidence</h3>
+                        <div class="confidence-bar">
+                            <div id="confidence-level" class="confidence-level"></div>
+                        </div>
+                        <p id="confidence-text">0%</p>
+                    </div>
+                    <div class="result-card">
+                        <h3>Model Used</h3>
+                        <p id="model-used">Loading...</p>
+                    </div>
+                    <div class="result-buttons">
+                        <button id="download-report" class="primary-btn">Download Report</button>
+                        <button id="new-diagnosis" class="secondary-btn">New Diagnosis</button>
+                    </div>
+                </div>
+            </div>
+            <div class="report-preview">
+                <h3>Report Summary</h3>
+                <div id="report-content" class="report-content">
+                    Loading report data...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="chat" class="chat-section">
+        <div class="container">
+            <h2>Chat with Medical AI Assistant</h2>
+            <div class="chat-container">
+                <div class="chat-image">
+                    <img src="/api/placeholder/400/300" alt="Chat with AI">
+                </div>
+                <div class="chat-info">
+                    <h3>Online Assistance</h3>
+                    <p>Get answers to your medical questions from our AI assistant. Note that this is not a substitute for professional medical advice.</p>
+                    <a href="/chat" class="primary-btn">Start Chatting</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="team">
+        <div class="container">
+            <h2>Meet Our AI Models</h2>
+            <div class="team-container">
+                <div class="team-card">
+                    <img src="/api/placeholder/300/200" alt="Skin Cancer Detection">
+                    <h3>Skin Cancer</h3>
+                    <p>Detection Model</p>
+                </div>
+                <div class="team-card">
+                    <img src="/api/placeholder/300/200" alt="COVID-19 Analysis">
+                    <h3>COVID-19</h3>
+                    <p>Analysis Model</p>
+                </div>
+                <div class="team-card">
+                    <img src="/api/placeholder/300/200" alt="Pneumonia Detection">
+                    <h3>Pneumonia</h3>
+                    <p>Detection Model</p>
+                </div>
+            </div>
+            <button class="primary-btn">See All Models</button>
+        </div>
+    </section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" rx="8" fill="#4285F4"/>
+                        <path d="M10 20H30M20 10V30M15 15H25V25H15V15Z" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <h3>MedDiagnosis</h3>
+                    <p>AI-Powered Medical Diagnosis</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#upload-section">Diagnosis</a></li>
+                        <li><a href="#chat">Chat</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <p><i class="fas fa-envelope"></i> contact@meddiagnosis.com</p>
+                    <p><i class="fas fa-phone"></i> +1 (555) 123-4567</p>
+                </div>
+                <div class="footer-hours">
+                    <h4>System Availability</h4>
+                    <p>Our AI system is available 24/7</p>
+                    <p>Support Hours: Monday-Friday, 9AM-5PM</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 MedDiagnosis. All Rights Reserved.</p>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
+        // Add smooth scrolling functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const modelCards = document.querySelectorAll('.model-card');
-            const uploadContainer = document.getElementById('upload-container');
-            const fileInput = document.getElementById('file-input');
-            const previewContainer = document.getElementById('preview-container');
-            const previewImage = document.getElementById('preview-image');
-            const changeImageBtn = document.getElementById('change-image-btn');
-            const analyzeBtn = document.getElementById('analyze-btn');
-            const progressContainer = document.getElementById('progress-container');
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-            const resultContainer = document.getElementById('result-container');
-            const resultHeading = document.getElementById('result-heading');
-            const resultText = document.getElementById('result-text');
-            const confidenceText = document.getElementById('confidence-text');
-            const probabilityBars = document.getElementById('probability-bars');
-            const primaryResult = document.getElementById('primary-result');
-            const newAnalysisBtn = document.getElementById('new-analysis-btn');
-            
-            // Set default model
-            let selectedModel = 'skin_cancer';
-            
-            // Color mapping for results
-            const resultColors = {
-                'positive': {
-                    class: 'positive-result',
-                    textClass: 'text-danger'
-                },
-                'negative': {
-                    class: 'negative-result',
-                    textClass: 'text-success'
-                },
-                'neutral': {
-                    class: 'neutral-result',
-                    textClass: 'text-secondary'
-                }
-            };
-            
-            // Classification mapping to determine result type
-            const positiveClasses = ['Sick', 'COVID', 'Parasitized', 'PNEUMONIA', 'malignant', 'Tuberculosis', 'Lung_Opacity', 'Viral Pneumonia'];
-            const negativeClasses = ['Healthy', 'Normal', 'NORMAL', 'Uninfected', 'benign', 'Normal'];
-            
-            // Set aria-pressed for initially selected model
-            modelCards.forEach(card => {
-                if (card.dataset.model === selectedModel) {
-                    card.classList.add('selected');
-                    card.setAttribute('aria-pressed', 'true');
-                }
+            // Handle navigation link to diagnosis section
+            document.getElementById('diagnosis-nav-link').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('upload-section').scrollIntoView({
+                    behavior: 'smooth'
+                });
             });
             
-            // Model selection
-            modelCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    // Remove selected class from all cards
-                    modelCards.forEach(c => {
-                        c.classList.remove('selected');
-                        c.setAttribute('aria-pressed', 'false');
+            // Handle Start Diagnosis button in hero section
+            document.getElementById('start-diagnosis').addEventListener('click', function() {
+                document.getElementById('upload-section').scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Handle all buttons with the class 'diagnosis-link'
+            const diagnosisLinks = document.querySelectorAll('.diagnosis-link');
+            diagnosisLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    document.getElementById('upload-section').scrollIntoView({
+                        behavior: 'smooth'
                     });
-                    
-                    // Add selected class to clicked card
-                    this.classList.add('selected');
-                    this.setAttribute('aria-pressed', 'true');
-                    
-                    // Update selected model
-                    selectedModel = this.dataset.model;
-                });
-                
-                // Keyboard accessibility
-                card.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        this.click();
-                    }
                 });
             });
-            
-            // Handle drag and drop events
-            uploadContainer.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                this.classList.add('border-primary');
-            });
-            
-            uploadContainer.addEventListener('dragleave', function() {
-                this.classList.remove('border-primary');
-            });
-            
-            uploadContainer.addEventListener('drop', function(e) {
-                e.preventDefault();
-                this.classList.remove('border-primary');
-                
-                if (e.dataTransfer.files.length > 0) {
-                    handleFile(e.dataTransfer.files[0]);
-                }
-            });
-            
-            // Handle click to upload
-            uploadContainer.addEventListener('click', function() {
-                fileInput.click();
-            });
-            
-            // Keyboard accessibility for upload container
-            uploadContainer.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    fileInput.click();
-                }
-            });
-            
-            fileInput.addEventListener('change', function() {
-                if (this.files.length > 0) {
-                    handleFile(this.files[0]);
-                }
-            });
-            
-            // Change image button
-            changeImageBtn.addEventListener('click', function() {
-                previewContainer.style.display = 'none';
-                uploadContainer.style.display = 'block';
-                resultContainer.style.display = 'none';
-            });
-            
-            // Analyze button
-            analyzeBtn.addEventListener('click', function() {
-                analyzeImage();
-            });
-            
-            // New analysis button
-            newAnalysisBtn.addEventListener('click', function() {
-                resetUI();
-            });
-            
-            function handleFile(file) {
-                if (!file.type.match('image/jpeg') && !file.type.match('image/png')) {
-                    alert('Please upload a valid image file (JPEG or PNG)');
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewImage.src = e.target.result;
-                    uploadContainer.style.display = 'none';
-                    previewContainer.style.display = 'block';
-                    resultContainer.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
-            }
-            
-            function resetUI() {
-                // Reset the UI to initial state
-                previewContainer.style.display = 'none';
-                uploadContainer.style.display = 'block';
-                resultContainer.style.display = 'none';
-                progressContainer.style.display = 'none';
-                fileInput.value = '';
-            }
-            
-            function getResultType(prediction) {
-                if (positiveClasses.includes(prediction)) {
-                    return 'positive';
-                } else if (negativeClasses.includes(prediction)) {
-                    return 'negative';
-                } else {
-                    return 'neutral';
-                }
-            }
-            
-            function analyzeImage() {
-                const file = fileInput.files[0];
-                if (!file) {
-                    alert('Please select an image first');
-                    return;
-                }
-                
-                if (!selectedModel) {
-                    alert('Please select a model for analysis');
-                    return;
-                }
-                
-                // Show progress bar
-                previewContainer.style.display = 'block';
-                progressContainer.style.display = 'block';
-                resultContainer.style.display = 'none';
-                
-                // Update progress text based on progress
-                const progressMessages = [
-                    'Preparing image...',
-                    'Applying preprocessing...',
-                    'Running AI analysis...',
-                    'Interpreting results...',
-                    'Finalizing report...'
-                ];
-                
-                // Simulate progress
-                let progress = 0;
-                const interval = setInterval(function() {
-                    progress += 5;
-                    progressBar.style.width = progress + '%';
-                    progressBar.setAttribute('aria-valuenow', progress);
-                    
-                    // Update progress text
-                    const messageIndex = Math.floor(progress / 20);
-                    if (messageIndex < progressMessages.length) {
-                        progressText.textContent = progressMessages[messageIndex];
-                    }
-                    
-                    if (progress >= 90) {
-                        clearInterval(interval);
-                    }
-                }, 100);
-                
-                // Create form data and send to server
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('model', selectedModel);
-                
-                fetch('/predict', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Complete progress bar
-                    clearInterval(interval);
-                    progressBar.style.width = '100%';
-                    progressBar.setAttribute('aria-valuenow', 100);
-                    progressText.textContent = 'Analysis complete!';
-                    
-                    setTimeout(() => {
-                        displayResults(data);
-                    }, 500);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred during analysis. Please try again.');
-                    
-                    clearInterval(interval);
-                    progressContainer.style.display = 'none';
-                    previewContainer.style.display = 'block';
-                });
-            }
-            
-            function displayResults(data) {
-                // Hide progress and show results
-                progressContainer.style.display = 'none';
-                resultContainer.style.display = 'block';
-                previewContainer.style.display = 'block';
-                
-                // Determine result type
-                const resultType = getResultType(data.prediction);
-                
-                // Update result heading with model name
-                resultHeading.textContent = `${data.display_name} Results`;
-                
-                // Update primary result box
-                primaryResult.className = 'result-box ' + resultColors[resultType].class;
-                resultText.className = 'result-heading ' + resultColors[resultType].textClass;
-                resultText.textContent = `Result: ${data.prediction}`;
-                confidenceText.textContent = `Confidence: ${data.confidence.toFixed(2)}%`;
-                
-                // Clear existing probability bars
-                probabilityBars.innerHTML = '';
-                
-                // Add probability bars for each class
-                for (const [className, probability] of Object.entries(data.probabilities)) {
-                    const barType = getResultType(className);
-                    const barColorClass = barType === 'positive' ? 'bg-danger' : 
-                                         barType === 'negative' ? 'bg-success' : 'bg-secondary';
-                    
-                    const barContainer = document.createElement('div');
-                    barContainer.className = 'mb-3';
-                    
-                    const barLabel = document.createElement('label');
-                    barLabel.textContent = className;
-                    barLabel.className = 'probability-bar-label';
-                    
-                    const progressDiv = document.createElement('div');
-                    progressDiv.className = 'progress probability-bar';
-                    
-                    const progressBar = document.createElement('div');
-                    progressBar.className = `progress-bar ${barColorClass}`;
-                    progressBar.role = 'progressbar';
-                    progressBar.style.width = `${probability}%`;
-                    progressBar.setAttribute('aria-valuenow', probability);
-                    progressBar.setAttribute('aria-valuemin', 0);
-                    progressBar.setAttribute('aria-valuemax', 100);
-                    progressBar.setAttribute('data-value', `${probability.toFixed(2)}%`);
-                    
-                    progressDiv.appendChild(progressBar);
-                    barContainer.appendChild(barLabel);
-                    barContainer.appendChild(progressDiv);
-                    probabilityBars.appendChild(barContainer);
-                }
-            }
         });
     </script>
 </body>

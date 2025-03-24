@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedDiagnosis - Symptom Checker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4285F4;
+            --secondary-color: #3776d9;
+            --accent-color: #3998a3;
+            --light-color: #f8fbfc;
+            --dark-color: #333333;
+            --success-color: #4ca8af;
+            --warning-color: #e67e22;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f5f9fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            background-color: white;
+            padding: 0.8rem 1rem;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            color: var(--primary-color);
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: white;
+            background-color: var(--primary-color);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            color: var(--dark-color);
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-color);
+        }
+        
+        .hero-section {
+            background-color: #EEF4FF;
+            padding: 60px 0;
+            border-radius: 0;
+        }
+        
+        .page-title {
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            max-width: 700px;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(66, 133, 244, 0.25);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+        }
+        
+        .btn {
+            padding: 0.6rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        }
+        
+        .get-started-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .get-started-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        }
+        
+        .start-diagnosis-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .start-diagnosis-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(66, 133, 244, 0.4);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary-color);
+        }
+        
+        .result-card {
+            margin-top: 2rem;
+            display: none;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            border-left: 4px solid;
+            padding: 1rem 1.5rem;
+        }
+        
+        .alert-warning {
+            background-color: #fff8e6;
+            border-left-color: #e67e22;
+            color: #995200;
+        }
+        
+        .alert-info {
+            background-color: #e8f7f8;
+            border-left-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+        
+        .feature-box {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            height: 100%;
+            box-shadow: var(--box-shadow);
+            transition: transform 0.3s;
+            text-align: center;
+        }
+        
+        .feature-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            background-color: var(--primary-color);
+            padding: 15px;
+            border-radius: 15px;
+        }
+        
+        .feature-box h4 {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        .model-recommendation {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .model-recommendation:hover {
+            transform: translateY(-5px);
+        }
+        
+        .model-recommendation h6 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        .feature-section {
+            padding: 60px 0;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        footer {
+            background-color: white;
+            color: var(--dark-color);
+            padding: 2rem 0;
+            margin-top: 0;
+            border-top: 1px solid #eee;
+        }
+        
+        footer .logo {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        footer .logo i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+            color: white;
+            background-color: var(--primary-color);
+            padding: 8px;
+            border-radius: 8px;
+        }
+        
+        footer ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        footer ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        footer ul li a {
+            color: #6c757d;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        footer ul li a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 1.5rem;
+            }
+            
+            .hero-section {
+                padding: 40px 0;
+            }
+            
+            .feature-box, .model-recommendation {
+                margin-bottom: 1rem;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+        
+        #analysisResult p {
+            margin-bottom: 1rem;
+        }
+        
+        .info-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            background-color: white;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-plus-square"></i> MedDiagnosis</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/services">Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/diagnosis">Diagnosis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/chat">Chat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Contact</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/symptom-checker">Symptom Checker</a>
+                    </li>
+                </ul>
+                <a href="/get-started" class="btn get-started-btn ms-3">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8 fade-in">
+                    <h1 class="page-title">Symptom Checker</h1>
+                    <p class="page-subtitle">Advanced AI-powered symptom analysis at your fingertips. Describe your symptoms below and our AI will suggest possible conditions and appropriate next steps.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card fade-in" style="animation-delay: 0.1s;">
+                    <div class="card-body">
+                        <form id="symptomForm">
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label for="age" class="form-label"><i class="fas fa-user me-2"></i>Age</label>
+                                    <input type="number" class="form-control" id="age" min="1" max="120" placeholder="Enter your age">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label"><i class="fas fa-venus-mars me-2"></i>Gender</label>
+                                    <select class="form-select" id="gender">
+                                        <option value="">Select gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="medicalHistory" class="form-label"><i class="fas fa-file-medical me-2"></i>Relevant Medical History (optional)</label>
+                                <textarea class="form-control" id="medicalHistory" rows="2" placeholder="E.g., diabetes, high blood pressure, previous surgeries"></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="symptoms" class="form-label"><i class="fas fa-stethoscope me-2"></i>Describe Your Symptoms</label>
+                                <textarea class="form-control" id="symptoms" rows="5" placeholder="Please describe your symptoms in detail (when they started, severity, location, etc.)"></textarea>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn start-diagnosis-btn">
+                                    <i class="fas fa-search me-2"></i>Analyze Symptoms
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="loading" id="loadingIndicator">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-primary fw-bold">Analyzing your symptoms...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card result-card fade-in" id="resultCard">
+                    <div class="card-body">
+                        <h4 class="card-title mb-4"><i class="fas fa-clipboard-check me-2"></i>Analysis Results</h4>
+                        <div class="alert alert-warning mb-4">
+                            <strong><i class="fas fa-exclamation-triangle me-2"></i>Disclaimer:</strong> This is not a medical diagnosis. Always consult with a healthcare professional.
+                        </div>
+                        
+                        <div id="analysisResult" class="mb-4 p-3 bg-light rounded"></div>
+                        
+                        <h5 class="mt-4 mb-3"><i class="fas fa-vials me-2"></i>Recommended Diagnostic Tests</h5>
+                        <div id="modelRecommendations" class="row g-3"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="fas fa-user-md me-2"></i>For Healthcare Professionals</h5>
+                        <p>Access advanced diagnostic tools, comprehensive reports, and AI-assisted analysis.</p>
+                        <a href="/healthcare-professional" class="btn btn-outline-primary">Learn More</a>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3"><i class="fas fa-info-circle me-2"></i>How It Works</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                Enter your symptoms and medical information
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                Our AI analyzes your data in seconds
+                            </li>
+                            <li class="mb-3">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                Receive detailed insights and recommendations
+                            </li>
+                            <li>
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                Share results with your healthcare provider
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <section class="feature-section">
+        <div class="container">
+            <h2 class="section-title">Why Choose MedDiagnosis</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                        <h4>Instant Results</h4>
+                        <p>Get AI analysis within seconds, no waiting required</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                        <h4>AI Diagnosis</h4>
+                        <p>State-of-the-art models trained on medical imagery</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-robot"></i></div>
+                        <h4>AI Assistant</h4>
+                        <p>Chat with our medical AI assistant for general guidance</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-file-medical-alt"></i></div>
+                        <h4>Detailed Reports</h4>
+                        <p>Comprehensive analysis to share with your doctor</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <div class="logo"><i class="fas fa-plus-square"></i> MedDiagnosis</div>
+                    <p>Advanced AI-powered medical diagnosis at your fingertips. Upload medical images for instant analysis and detailed reports.</p>
+                </div>
+                <div class="col-md-3 col-lg-2 mb-4 mb-md-0">
+                    <h5>Quick Links</h5>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/services">Services</a></li>
+                        <li><a href="/diagnosis">Diagnosis</a></li>
+                        <li><a href="/symptom-checker">Symptom Checker</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 col-lg-2 mb-4 mb-md-0">
+                    <h5>Resources</h5>
+                    <ul>
+                        <li><a href="/faq">FAQ</a></li>
+                        <li><a href="/blog">Blog</a></li>
+                        <li><a href="/terms">Terms</a></li>
+                        <li><a href="/privacy">Privacy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <h5>Contact Us</h5>
+                    <p><i class="fas fa-envelope me-2"></i> support@meddiagnosis.com</p>
+                    <p><i class="fas fa-phone me-2"></i> +1 (800) 123-4567</p>
+                    <div class="mt-3">
+                        <a href="#" class="me-3"><i class="fab fa-facebook fa-lg"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="me-3"><i class="fab fa-linkedin fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <p class="mb-0">© 2025 MedDiagnosis. All rights reserved. For educational purposes only. Not a substitute for professional medical advice.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('symptomForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Show loading indicator
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('resultCard').style.display = 'none';
+            
+            // Get form values
+            const age = document.getElementById('age').value;
+            const gender = document.getElementById('gender').value;
+            const medicalHistory = document.getElementById('medicalHistory').value;
+            const symptoms = document.getElementById('symptoms').value;
+            
+            // Validate symptoms
+            if (!symptoms) {
+                alert('Please describe your symptoms');
+                document.getElementById('loadingIndicator').style.display = 'none';
+                return;
+            }
+            
+            try {
+                // Send request to API
+                const response = await fetch('/api/check-symptoms', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        age,
+                        gender,
+                        medicalHistory,
+                        symptoms
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Display results
+                    document.getElementById('analysisResult').innerHTML = formatAnalysis(data.analysis);
+                    
+                    // Display model recommendations
+                    const recommendationsContainer = document.getElementById('modelRecommendations');
+                    recommendationsContainer.innerHTML = '';
+                    
+                    data.recommended_models.forEach(model => {
+                        const modelCard = document.createElement('div');
+                        modelCard.className = 'col-md-6 mb-3';
+                        modelCard.innerHTML = `
+                            <div class="model-recommendation">
+                                <h6><i class="fas fa-microscope me-2"></i>${model.name}</h6>
+                                <p>${model.description}</p>
+                                <a href="/?model=${model.key}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-arrow-right me-1"></i> Use This Test
+                                </a>
+                            </div>
+                        `;
+                        recommendationsContainer.appendChild(modelCard);
+                    });
+                    
+                    // Show results with animation
+                    const resultCard = document.getElementById('resultCard');
+                    resultCard.style.display = 'block';
+                    resultCard.classList.add('fade-in');
+                    
+                    // Scroll to results
+                    resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                } else {
+                    alert('Error: ' + (data.error || 'Failed to analyze symptoms'));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                // Hide loading indicator
+                document.getElementById('loadingIndicator').style.display = 'none';
+            }
+        });
+        
+        function formatAnalysis(text) {
+            // Convert markdown-style text to HTML
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>')
+                .replace(/(Disclaimer:.*?)(<br>|<\/p>)/i, '<div class="alert alert-info">$1</div>$2');
+        }
+        
+        // Fade-in animation for elements as they come into view
+        document.addEventListener('DOMContentLoaded', function() {
+            const animatedElements = document.querySelectorAll('.fade-in');
+            
+            for (let i = 0; i < animatedElements.length; i++) {
+                const element = animatedElements[i];
+                element.style.opacity = '0';
+                
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                }, 100 + (i * 150));
+            }
+        });
+    </script>
+</body>
+</html>
