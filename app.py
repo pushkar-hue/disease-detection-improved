@@ -16,7 +16,7 @@ from report import generate_professional_report
 load_dotenv()
 
 # Configure Gemini API
-genai.configure(api_key="")
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 gemini_model = genai.GenerativeModel('gemini-1.5-pro')
 
 app = Flask(__name__)
