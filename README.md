@@ -79,8 +79,8 @@ The platform supports six AI models trained on medical imaging datasets:
 ## Installation & Setup
 1. Clone the repository:
    ```sh
-   git clone https://github.com/your-repo/ai-medical-diagnosis.git
-   cd ai-medical-diagnosis
+   https://github.com/pushkar-hue/disease-detection-improved.git
+   cd disease-detection-improved
    ```
 2. Install dependencies:
    ```sh
