@@ -38,6 +38,24 @@ The platform supports six AI models trained on medical imaging datasets:
 6. Pneumonia Detection: 95%
 7. COVID-19 Detection: 96%
 
+## Malaria:
+![WhatsApp Image 2025-03-20 at 21 38 31_718fe8dc](https://github.com/user-attachments/assets/fe83f6f4-0ba6-4744-9133-192844fbb926)
+
+## Breast Cancer:
+![image](https://github.com/user-attachments/assets/1da6e26b-ce48-4be9-bf65-484b7c54f8ec)
+
+## Pneumonia:
+![image](https://github.com/user-attachments/assets/012e15e5-8f4e-4bb7-af63-68c34c43088e)
+
+## Skin Cancer
+![WhatsApp Image 2025-03-20 at 21 41 46_014b0344](https://github.com/user-attachments/assets/ed6a088a-938b-4401-81c6-e7d6410ac4d3)
+
+## Tuberculosis
+![WhatsApp Image 2025-03-20 at 21 42 16_2b7be797](https://github.com/user-attachments/assets/34cc3b1a-a08d-45d3-a5bb-8899b772f39a)
+
+## COVID-19
+![image](https://github.com/user-attachments/assets/1ec8268e-32ff-48ac-9ffc-b2271bca1482)
+
 
 ## Technologies Used
 - **Backend**: Flask (Python)
