@@ -30,13 +30,12 @@ The platform supports six AI models trained on medical imaging datasets:
 
 
 ## Model Accuracy
-1. Here are the accuracy scores of each model:
-2. Skin Cancer Detection: 90%
-3. Malaria Detection: 94%
-4. Breast Cancer Classification: 95%
-5. Tuberculosis Detection: 97%
-6. Pneumonia Detection: 95%
-7. COVID-19 Detection: 96%
+1. Skin Cancer Detection: 90%
+2. Malaria Detection: 94%
+3. Breast Cancer Classification: 95%
+4. Tuberculosis Detection: 97%
+5. Pneumonia Detection: 95%
+6. COVID-19 Detection: 96%
 
 ## Malaria:
 ![WhatsApp Image 2025-03-20 at 21 38 31_718fe8dc](https://github.com/user-attachments/assets/fe83f6f4-0ba6-4744-9133-192844fbb926)
